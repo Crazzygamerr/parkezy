@@ -11,6 +11,7 @@ class Parking extends StatefulWidget {
 class _ParkingState extends State<Parking> {
   
   String name = "";
+  int capacity = 0;
   TextEditingController regCon = TextEditingController(), modelCon = TextEditingController();
   Stream<QuerySnapshot>? stream;
   
@@ -19,7 +20,9 @@ class _ParkingState extends State<Parking> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        name = (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['parking'] ?? "";
+        var args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        name = args['parking'] ?? "";
+        capacity = args['capacity'] ?? 0;
         stream = FirebaseFirestore.instance.collection('lots').doc(name).collection('spots').snapshots();
       });
     });
@@ -30,156 +33,191 @@ class _ParkingState extends State<Parking> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 40,
-            ),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 40,
               ),
-            ),
-            const SizedBox(height: 20,),
-            // StreamBuilder<QuerySnapshot>(
-            //   stream: stream,
-            //   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            //     if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            //       // return a progress bar showing half full
-                  
-            //     } else {
-            //       return const CircularProgressIndicator();
-            //     }
-            //   },
-            // ),
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Spots",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: (){}, 
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ]
+              Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "History",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: (){}, 
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ]
-                ),
-              ),
-            ),
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Add Vehicle Details",
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(height: 20,),
-                    TextFormField(
-                      controller: regCon,
-                      style: const TextStyle(
-                        fontSize: 15,
-                      ),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "Registration",
-                      ),
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'Please enter registration number';
-                      //   }
-                      //   return null;
-                      // },
-                    ),
-                    const SizedBox(height: 10,),
-                    TextFormField(
-                      controller: modelCon,
-                      style: const TextStyle(
-                        fontSize: 15,
-                      ),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "Model",
-                      ),
-                    ),
-                    const SizedBox(height: 10,),
-                    Container(
-                      width: double.infinity,
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () async{
-                          if(regCon.text.isNotEmpty && modelCon.text.isNotEmpty) {
-                            await FirebaseFirestore.instance.collection('lots').doc(name).collection('spots').add({
-                              'reg': regCon.text,
-                              'model': modelCon.text,
-                              'time': DateTime.now().toString(),
-                            });
-                            regCon.clear();
-                            modelCon.clear();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Please enter all details"),
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.purpleAccent,
+              const SizedBox(height: 20,),
+              StreamBuilder<QuerySnapshot>(
+                stream: stream,
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox();
+                  } else {
+                    return Card(
+                      child: ListTile(
+                        title: const Text(
+                          "Capacity:",
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
                         ),
-                        child: const Text("Book"),
+                        trailing: Text(
+                          "${snapshot.data!.docs.length}/$capacity",
+                          style: const TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                        subtitle: LinearProgressIndicator(
+                          value: snapshot.data!.docs.length / capacity,
+                          color: Colors.purple[400],
+                          backgroundColor: Colors.grey[300],
+                        ),
                       ),
+                    );
+                  }
+                },
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/spots', arguments: {
+                    "parking": name,
+                    "history": false,
+                  });
+                },
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Spots",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: (){}, 
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ]
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/spots', arguments: {
+                    "parking": name,
+                    "history": true,
+                  });
+                },
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "History",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: (){}, 
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ]
+                    ),
+                  ),
+                ),
+              ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Add Vehicle",
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                      TextFormField(
+                        controller: regCon,
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Registration",
+                        ),
+                        // validator: (value) {
+                        //   if (value == null || value.isEmpty) {
+                        //     return 'Please enter registration number';
+                        //   }
+                        //   return null;
+                        // },
+                      ),
+                      const SizedBox(height: 10,),
+                      TextFormField(
+                        controller: modelCon,
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Model",
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+                      StreamBuilder<QuerySnapshot>(
+                        stream: stream,
+                        builder: (context, snapshot) {
+                          return Container(
+                            width: double.infinity,
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if(regCon.text.isNotEmpty 
+                                  && modelCon.text.isNotEmpty
+                                  && snapshot.hasData
+                                  && snapshot.data!.docs.length < capacity
+                                ) {
+                                  await FirebaseFirestore.instance.collection('lots').doc(name).collection('spots').add({
+                                    'reg': regCon.text,
+                                    'model': modelCon.text,
+                                    'time': DateTime.now().toString(),
+                                  });
+                                  regCon.clear();
+                                  modelCon.clear();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Please enter all details"),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.purpleAccent,
+                              ),
+                              child: const Text("Book"),
+                            ),
+                          );
+                        }
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

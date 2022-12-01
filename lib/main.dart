@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:parkezy/parking.dart';
+import 'package:parkezy/spots.dart';
 
 import 'firebase_options.dart';
 
@@ -25,7 +27,16 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const MyHomePage(),
         '/parking': (context) => const Parking(),
+        '/spots': (context) => const Spots(),
       },
+      theme: ThemeData(
+        cardTheme: CardTheme(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -39,13 +50,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  // var db = FirebaseFirestore.instance;
-  // Stream<QuerySnapshot>? lots;
+  var db = FirebaseFirestore.instance;
+  Stream<QuerySnapshot>? lots;
   
   @override
   void initState() {
     super.initState();
-    // lots = db.collection('lots').snapshots();
+    lots = db.collection('lots').snapshots();
   }
   
   @override
@@ -57,58 +68,105 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             const SizedBox(
-              height: 100,
+              height: 50,
             ),
-            const Text(
-              "SHIV NADAR IOE",
-              style: TextStyle(
+            DefaultTextStyle(
+              style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: const Text(
-                "Parking Lots",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "SHIV NADAR IOE",
+                    style: TextStyle(
+                      color: Colors.blue[300],
+                    ),
+                  ),
+                  const Text(
+                    "X",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    "PARKEZY",
+                    style: TextStyle(
+                      color: Colors.purple[400],
+                    ),
+                  ),
+                ],
               ),
             ),
+            // Container(
+            //   padding: const EdgeInsets.all(10),
+            //   child: const Text(
+            //     "Parking Lots",
+            //     style: TextStyle(
+            //       fontSize: 20,
+            //     ),
+            //   ),
+            // ),
             
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/parking', arguments: {
-                        'parking': 'Parking ${index + 1}',
-                      });
-                    },
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+            StreamBuilder<QuerySnapshot>(
+              stream: lots,
+              builder: (context, snapshot) {
+                if(!snapshot.hasData) {
+                  return const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (snapshot.data!.docs.isEmpty) {
+                  return const Expanded(
+                    child: Center(
+                      child: Text(
+                        "No data",
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
                       ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 100,
-                        child: Center(
-                          child: Text(
-                            "Parking ${index + 1}",
-                            style: const TextStyle(
-                              fontSize: 20,
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data?.docs.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context, 
+                            '/parking', 
+                            arguments: {
+                              'parking': 'Parking ${index + 1}',
+                              'capacity': snapshot.data!.docs[index]['capacity'],
+                            }
+                          );
+                        },
+                        child: Card(
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 100,
+                            child: Center(
+                              child: Text(
+                                snapshot.data!.docs[index].id,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
-              },
+              }
             ),
             
             // StreamBuilder<QuerySnapshot>(
