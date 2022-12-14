@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Spots extends StatefulWidget {
   const Spots({Key? key}) : super(key: key);
@@ -26,6 +27,7 @@ class _SpotsState extends State<Spots> {
         stream = db.collection('lots')
           .doc(parking)
           .collection(isHistory ? 'history' : 'spots')
+          .orderBy('time', descending: true)
           .snapshots();
       });
     });
@@ -34,16 +36,25 @@ class _SpotsState extends State<Spots> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
         padding: const EdgeInsets.all(10),
+        color: const Color(0xffEBEFF2),
         child: Column(
           children: [
             const SizedBox(height: 40,),
             Text(
-              "$parking: ${isHistory ? "History" : "Spots"}",
+              parking,
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10,),
+            Text(
+              isHistory ? "History" : "Spots",
+              style: const TextStyle(
+                fontSize: 20,
               ),
             ),
             StreamBuilder<QuerySnapshot>(
@@ -75,7 +86,7 @@ class _SpotsState extends State<Spots> {
                           title: Text(doc['reg']),
                           subtitle: Text(doc['model']),
                           trailing: isHistory 
-                            ? Text(doc['time']) 
+                            ? Text(DateFormat('d MMM yy, h:mm a').format(DateTime.parse(doc['time']))) 
                             : IconButton(
                               onPressed: () {
                                 db.collection('lots')

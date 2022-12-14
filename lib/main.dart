@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(20),
+        color: const Color(0xffEBEFF2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[

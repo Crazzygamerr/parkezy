@@ -31,8 +31,10 @@ class _ParkingState extends State<Parking> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
         padding: const EdgeInsets.all(10),
+        color: const Color(0xffEBEFF2),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -92,16 +94,17 @@ class _ParkingState extends State<Parking> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Spots",
-                          style: TextStyle(
-                            fontSize: 20,
+                        Container(
+                          height: 50,
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            "Spots",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: (){}, 
-                          icon: const Icon(Icons.chevron_right),
-                        ),
+                        const Icon(Icons.chevron_right),
                       ]
                     ),
                   ),
@@ -120,16 +123,17 @@ class _ParkingState extends State<Parking> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "History",
-                          style: TextStyle(
-                            fontSize: 20,
+                        Container(
+                          height: 50,
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            "History",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
                           ),
                         ),
-                        IconButton(
-                          onPressed: (){}, 
-                          icon: const Icon(Icons.chevron_right),
-                        ),
+                        const Icon(Icons.chevron_right),
                       ]
                     ),
                   ),
@@ -205,7 +209,7 @@ class _ParkingState extends State<Parking> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.purpleAccent,
+                                primary: Colors.purple[400],
                               ),
                               child: const Text("Book"),
                             ),
