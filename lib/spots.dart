@@ -40,80 +40,87 @@ class _SpotsState extends State<Spots> {
         height: MediaQuery.of(context).size.height,
         padding: const EdgeInsets.all(10),
         color: const Color(0xffEBEFF2),
-        child: Column(
-          children: [
-            const SizedBox(height: 40,),
-            Text(
-              parking,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10,),
-            Text(
-              isHistory ? "History" : "Spots",
-              style: const TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            StreamBuilder<QuerySnapshot>(
-              stream: stream,
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if(!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.data!.docs.isEmpty) {
-                  return const Expanded(
-                    child: Center(
-                      child: Text(
-                        "No data",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      var doc = snapshot.data!.docs[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(doc['reg']),
-                          subtitle: Text(doc['model']),
-                          trailing: isHistory 
-                            ? Text(DateFormat('d MMM yy, h:mm a').format(DateTime.parse(doc['time']))) 
-                            : IconButton(
-                              onPressed: () {
-                                db.collection('lots')
-                                  .doc(parking)
-                                  .collection('spots')
-                                  .doc(doc.id)
-                                  .delete();
-                                  
-                                db.collection('lots')
-                                  .doc(parking)
-                                  .collection('history')
-                                  .add({
-                                    'reg': doc['reg'],
-                                    'model': doc['model'],
-                                    'time': DateTime.now().toString(),
-                                });
-                              },
-                              icon: const Icon(Icons.exit_to_app),
+        alignment: Alignment.center,
+        child: SizedBox(
+          height: double.infinity,
+          width: MediaQuery.of(context).size.width > 500 ? 500 : MediaQuery.of(context).size.width,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 40,),
+                Text(
+                  parking,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10,),
+                Text(
+                  isHistory ? "History" : "Spots",
+                  style: const TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: stream,
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if(!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.data!.docs.isEmpty) {
+                      return const Expanded(
+                        child: Center(
+                          child: Text(
+                            "No data",
+                            style: TextStyle(
+                              fontSize: 20,
                             ),
+                          ),
                         ),
                       );
-                    },
-                  );
-                }
-              },
+                    } else {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          var doc = snapshot.data!.docs[index];
+                          return Card(
+                            child: ListTile(
+                              title: Text(doc['reg']),
+                              subtitle: Text(doc['model']),
+                              trailing: isHistory 
+                                ? Text(DateFormat('d MMM yy, h:mm a').format(DateTime.parse(doc['time']))) 
+                                : IconButton(
+                                  onPressed: () {
+                                    db.collection('lots')
+                                      .doc(parking)
+                                      .collection('spots')
+                                      .doc(doc.id)
+                                      .delete();
+                                      
+                                    db.collection('lots')
+                                      .doc(parking)
+                                      .collection('history')
+                                      .add({
+                                        'reg': doc['reg'],
+                                        'model': doc['model'],
+                                        'time': DateTime.now().toString(),
+                                    });
+                                  },
+                                  icon: const Icon(Icons.exit_to_app),
+                                ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
