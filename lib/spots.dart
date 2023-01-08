@@ -50,16 +50,18 @@ class _SpotsState extends State<Spots> {
                 const SizedBox(height: 40,),
                 Text(
                   parking,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
+                    color: Colors.purple[400],
                   ),
                 ),
                 const SizedBox(height: 10,),
                 Text(
                   isHistory ? "History" : "Spots",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
+                    color: Colors.blue[300],
                   ),
                 ),
                 StreamBuilder<QuerySnapshot>(

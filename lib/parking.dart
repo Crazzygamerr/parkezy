@@ -49,9 +49,10 @@ class _ParkingState extends State<Parking> {
                 ),
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
+                    color: Colors.purple[400],
                   ),
                 ),
                 const SizedBox(height: 20,),
@@ -77,7 +78,7 @@ class _ParkingState extends State<Parking> {
                           ),
                           subtitle: LinearProgressIndicator(
                             value: snapshot.data!.docs.length / capacity,
-                            color: Colors.purple[400],
+                            color: Colors.blue[300],
                             backgroundColor: Colors.grey[300],
                           ),
                         ),
@@ -213,7 +214,7 @@ class _ParkingState extends State<Parking> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.purple[400],
+                                  backgroundColor: Colors.blue[300],
                                 ),
                                 child: const Text("Book"),
                               ),

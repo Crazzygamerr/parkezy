@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:parkezy/login.dart';
+import 'package:parkezy/lots.dart';
 import 'package:parkezy/parking.dart';
 import 'package:parkezy/spots.dart';
 
@@ -28,6 +29,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(),
+        '/login':(context) => const Login(),
+        '/lots': (context) => const Lots(),
         '/parking': (context) => const Parking(),
         '/spots': (context) => const Spots(),
       },
@@ -51,15 +54,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  var db = FirebaseFirestore.instance;
-  Stream<QuerySnapshot>? lots;
-  
-  @override
-  void initState() {
-    super.initState();
-    lots = db.collection('lots').snapshots();
-  }
   
   @override
   Widget build(BuildContext context) {
@@ -106,84 +100,51 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-              // Container(
-              //   padding: const EdgeInsets.all(10),
-              //   child: const Text(
-              //     "Parking Lots",
-              //     style: TextStyle(
-              //       fontSize: 20,
-              //     ),
-              //   ),
-              // ),
-              
-              StreamBuilder<QuerySnapshot>(
-                stream: lots,
-                builder: (context, snapshot) {
-                  if(!snapshot.hasData) {
-                    return const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  } else if (snapshot.data!.docs.isEmpty) {
-                    return const Expanded(
-                      child: Center(
-                        child: Text(
-                          "No data",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: snapshot.data?.docs.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context, 
-                              '/parking', 
-                              arguments: {
-                                'parking': 'Parking ${index + 1}',
-                                'capacity': snapshot.data!.docs[index]['capacity'],
-                              }
-                            );
-                          },
-                          child: Card(
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 100,
-                              child: Center(
-                                child: Text(
-                                  snapshot.data!.docs[index].id,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: 1,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: GestureDetector(
+                      onTap: () {
+                        
+                      },
+                      child: const Card(
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              "Acad blocks",
+                              // snapshot.data!.docs[index].id,
+                              style: TextStyle(
+                                fontSize: 20,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   );
-                }
+                },
               ),
-              
-              // StreamBuilder<QuerySnapshot>(
-              //   stream: lots,
-              //   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              //     if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-              //     } else {
-              //       return const CircularProgressIndicator();
-              //     }
-              //   },
-              // ),
+              const SizedBox(
+                height: 50,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: Text(
+                  "Admin login",
+                  style: TextStyle(
+                    color: Colors.purple[400],
+                    fontSize: 20,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              )
             ],
           ),
         ),
