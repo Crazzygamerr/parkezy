@@ -52,7 +52,7 @@ class _LoginState extends State<Login> {
                           ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: "Email",
+                            labelText: "Username",
                           ),
                         ),
                         const SizedBox(height: 20,),
@@ -75,7 +75,7 @@ class _LoginState extends State<Login> {
                           ),
                           onPressed: () {
                             if(emailCon.text == "admin" && passCon.text == "pass") {
-                              Navigator.pushNamedAndRemoveUntil(context, '/lots', (route) => false);
+                              Navigator.pushNamed(context, '/lots');
                             }
                           },
                           child: const Text("Login"),

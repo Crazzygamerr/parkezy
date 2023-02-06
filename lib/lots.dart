@@ -51,14 +51,16 @@ class _LotsState extends State<Lots> {
                   stream: lots,
                     builder: (context, snapshot) {
                       if(!snapshot.hasData) {
-                        return const Expanded(
-                          child: Center(
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: const Center(
                             child: CircularProgressIndicator(),
                           ),
                         );
                       } else if (snapshot.data!.docs.isEmpty) {
-                        return const Expanded(
-                          child: Center(
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: const Center(
                             child: Text(
                               "No data",
                               style: TextStyle(
